@@ -1,0 +1,12 @@
+Thumbs.db
+.vsconfig
+Assembly-CSharp.csproj
+*.sln
+
+/.vs
+/Library
+/Logs
+/obj
+/Recordings
+/Temp
+/UserSettings

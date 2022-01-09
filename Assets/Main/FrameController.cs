@@ -1,0 +1,40 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+public class FrameController : MonoBehaviour
+{
+    [SerializeField]
+    private List<FrameButtonObject> frameList = new List<FrameButtonObject>();
+
+    private Action<int> onClick;
+
+    public void Initialize(Action<int> onClick)
+    {
+        this.onClick = onClick;
+
+        // äeFrameButtonObjectÇÃèâä˙âª
+        for (int i = 0; i < frameList.Count; i++)
+        {
+            frameList[i].Initialize(OnClick, i);
+        }
+    }
+
+    public FrameButtonObject GetFrameButtonObjectFromIndex(int index)
+    {
+        if (index < 0 || frameList.Count <= index)
+        {
+            UnityEngine.Assertions.Assert.IsTrue(true, "GetFrameButtonObjectFromIndexä÷êîÇ≈éÊìæÇ…é∏îsÇµÇ‹ÇµÇΩÅB");
+            return null;
+        }
+        return frameList[index];
+    }
+
+    private void OnClick(FrameButtonObject panelButtonObject)
+    {
+        Debug.Log($"FrameController OnClick : {frameList[panelButtonObject.index].name}");
+
+        onClick.Invoke(panelButtonObject.index);
+    }
+}
