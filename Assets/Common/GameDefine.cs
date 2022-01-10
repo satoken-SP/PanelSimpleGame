@@ -4,7 +4,10 @@
 public class GameDefine
 {
     /// <summary>最大列数</summary>
-    public static int MaxCol = 5;
+    public const int MaxCol = 5;
     /// <summary>最大行数</summary>
-    public static int MaxRow = 3;
+    public const int MaxRow = 3;
+
+    /// <summary>インデックスの無効値</summary>
+    public const int InvalidIndex = -1;
 }
