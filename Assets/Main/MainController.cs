@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -7,35 +6,50 @@ using UnityEngine;
 /// </summary>
 public class MainController : MonoBehaviour
 {
-    [SerializeField]
-    FrameController frameController;
+    /// <summary>最大ステージ数</summary>
+    const int StageCount = 3;
 
     [SerializeField]
     PanelController panelController;
 
+    [SerializeField]
+    TMPro.TextMeshProUGUI stageName;
+
     private void Awake()
     {
-        frameController.Initialize(OnClickPanel);
-        panelController.Initialize();
+        // 初期化
+        panelController.Initialize(OnChangePanel);
+
+        // シャッフル
+        panelController.Shuffle(30);
+
+        stageName.SetText($"すてーじ{GameController.instance.nowStage}");
     }
 
-    private void OnClickPanel(int index)
+    /// <summary>
+    /// パネルの交換が起こったとき
+    /// </summary>
+    /// <param name="panelObject"></param>
+    private void OnChangePanel(PanelObject panelObject)
     {
-        var panelObj = panelController.GetPanelObject(index);
-        var hidePanel = panelController.GetHidePanelObjectFromLink();
-        var hideLinkPanels = panelController.GetLinkHidePanelObjectList();
-        for (int i = 0; i < hideLinkPanels.Count; i++)
+        if (panelController.IsComplete())
         {
-            if (panelObj == null || panelObj != hideLinkPanels[i])
+            Debug.Log("***>>>    COMPLETE  !!!!");
+
+            panelController.CompleteEffect();
+
+            if (GameController.instance.nowStage < StageCount)
             {
-                continue;
+                StartCoroutine(NextStage());
             }
-
-            // 入れ替え
-            panelController.ChangePanelPosition(panelObj, hidePanel);
-
-            Debug.Log($"**>> panelObj:{panelObj.name} hidePanels[i]:{hideLinkPanels[i].name}");
-            return;
         }
+    }
+
+    private IEnumerator NextStage()
+    {
+        yield return new WaitForSeconds(4f);
+
+        GameController.instance.nowStage += 1;
+        GameController.instance.sceneChanger.ChangeScene(SceneType.MainScene);
     }
 }

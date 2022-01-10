@@ -1,27 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PanelObject : MonoBehaviour
 {
-    /// <summary>
-    /// パネルの上下左右の隣接するパネルの参照
-    /// </summary>
-    public class PanelLink
-    {
-        public PanelObject left = null;
-        public PanelObject right = null;
-        public PanelObject up = null;
-        public PanelObject down = null;
+    [SerializeField]
+    private GameObject frameObject;
 
-        public PanelLink(PanelObject left, PanelObject right, PanelObject up, PanelObject down)
-        {
-            this.left = left;
-            this.right = right;
-            this.up = up;
-            this.down = down;
-        }
-    }
+    [SerializeField]
+    private Image image;
+
+    [SerializeField]
+    private CommonButton commonButton;
 
     public int startIndex { get; private set; }
 
@@ -29,17 +19,27 @@ public class PanelObject : MonoBehaviour
 
     public bool IsVisible { get; private set; } = true;
 
-    public PanelLink panelLink { get; private set; }
+    private Action<PanelObject> onClickCallback;
 
-    public void Initialize(int startIndex)
+    public void Initialize(int startIndex, Action<PanelObject> onClickCallback)
     {
         this.startIndex = startIndex;
         this.realIndex = startIndex;
+        
+        this.onClickCallback = onClickCallback;
+
+        LoadImage(startIndex + 1);
+
+        commonButton.Initialize();
+        commonButton.onClickButton = OnClick;
     }
 
-    public void SetLink(PanelObject left, PanelObject right, PanelObject up, PanelObject down)
+    public void LoadImage(int index)
     {
-        panelLink = new PanelLink(left, right, up, down);
+        int stage = GameController.instance.nowStage;
+        string fileName = string.Format("{0}_{1:D2}", stage, index);
+        string path = $"img/{stage}/{fileName}";
+        image.sprite = Resources.Load<Sprite>(path);
     }
 
     public void SetVisible(bool visible)
@@ -48,34 +48,18 @@ public class PanelObject : MonoBehaviour
         this.IsVisible = visible;
     }
 
-    public void ChangePanelPosition(int nextIndex)
+    public void SetEnabledButton(bool enabled)
     {
-        this.realIndex = nextIndex;
+        commonButton.enabled = enabled;
     }
 
-    /// <summary>
-    /// 隣接するパネルで非表示のパネルがあれば自分自身を返す
-    /// </summary>
-    /// <returns></returns>
-    public PanelObject GetLinkHidePanelObject()
+    public  void SetVisibleFrame(bool visible)
     {
-        if (panelLink.left?.IsVisible == false) return this;
-        if (panelLink.right?.IsVisible == false) return this;
-        if (panelLink.up?.IsVisible == false) return this;
-        if (panelLink.down?.IsVisible == false) return this;
-        return null;
+        frameObject.SetActive(visible);
     }
 
-    /// <summary>
-    /// 隣接するパネルで非表示のパネルがあれば非表示のパネルを返す
-    /// </summary>
-    /// <returns></returns>
-    public PanelObject GetHidePanelObjectFromLink()
+    public void OnClick()
     {
-        if (panelLink.left?.IsVisible == false) return panelLink.left;
-        if (panelLink.right?.IsVisible == false) return panelLink.right;
-        if (panelLink.up?.IsVisible == false) return panelLink.up;
-        if (panelLink.down?.IsVisible == false) return panelLink.down;
-        return null;
+        onClickCallback.Invoke(this);
     }
 }
